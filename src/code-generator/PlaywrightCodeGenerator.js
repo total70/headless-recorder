@@ -30,7 +30,6 @@ export default class PlaywrightCodeGenerator extends CodeGenerator {
   }
 
   actionSteps(events) {
-    this._parseEvents(events);
     return this._actionSteps();
   }
 

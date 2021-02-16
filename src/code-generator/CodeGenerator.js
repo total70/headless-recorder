@@ -45,9 +45,9 @@ export default class CodeGenerator {
   _actionSteps() {
     let result = '';
     for (let action of this._actions) {
-      result += action + `\n`;
+      result += action + ',' + `\n` ;
     }
-    return result;
+    return result.slice(0, result.length - 2);
   }
 
   _parseEvents (events) {
