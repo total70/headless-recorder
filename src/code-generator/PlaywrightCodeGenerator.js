@@ -29,6 +29,11 @@ export default class PlaywrightCodeGenerator extends CodeGenerator {
     return importPlaywright + this._getHeader() + this._parseEvents(events) + this._getFooter()
   }
 
+  actionSteps(events) {
+    this._parseEvents(events);
+    return this._actionSteps();
+  }
+
   _handleViewport (width, height) {
     return new Block(this._frameId, { type: pptrActions.VIEWPORT, value: `await ${this._frame}.setViewportSize({ width: ${width}, height: ${height} })` })
   }

@@ -35,6 +35,10 @@ export default {
       type: String, 
       default: ''
     },
+    steps: {
+      type: String,
+      default: ''
+    },
     options: {
       type: Object,
       default: () => ({})
@@ -55,7 +59,7 @@ export default {
   },
   methods: {
     code() {
-      return this.activeTab === TYPE.PUPPETEER ? this.puppeteer : this.playwright
+      return this.activeTab === TYPE.PUPPETEER ? this.steps : this.playwright
     },
     changeTab(tab) {
       this.activeTab = tab

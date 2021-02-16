@@ -1,5 +1,6 @@
 import domEvents from './dom-events-to-record'
 import Block from './Block'
+import Action from './Action';
 import pptrActions from './pptr-actions'
 
 export const defaults = {
@@ -17,6 +18,7 @@ export default class CodeGenerator {
   constructor (options) {
     this._options = Object.assign(defaults, options)
     this._blocks = []
+    this._actions = []
     this._frame = 'page'
     this._frameId = 0
     this._allFrames = {}
@@ -40,6 +42,14 @@ export default class CodeGenerator {
     return this._options.wrapAsync ? this._wrappedFooter : this._footer
   }
 
+  _actionSteps() {
+    let result = '';
+    for (let action of this._actions) {
+      result += action + `\n`;
+    }
+    return result;
+  }
+
   _parseEvents (events) {
     console.debug(`generating code for ${events ? events.length : 0} events`)
     let result = ''
@@ -57,14 +67,20 @@ export default class CodeGenerator {
         case 'keydown':
           if (keyCode === this._options.keyCode) {
             this._blocks.push(this._handleKeyDown(escapedSelector, value, keyCode))
+            this._actions.push(new Action('type', escapedSelector, this._escapeUserInput(value)).getAction())
           }
           break
         case 'click':
           this._blocks.push(this._handleClick(escapedSelector, events))
+          if (this._options.waitForSelectorOnClick) {
+            this._actions.push(new Action('waitForSelector', escapedSelector).getAction())
+          } 
+            this._actions.push(new Action('click', escapedSelector).getAction())
           break
         case 'change':
           if (tagName === 'SELECT') {
             this._blocks.push(this._handleChange(escapedSelector, value))
+            this._actions.push(new Action('select', escapedSelector).getAction())
           }
           break
         case pptrActions.GOTO:

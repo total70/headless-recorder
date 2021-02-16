@@ -30,7 +30,7 @@
           <a href="#" @click="showResultsTab = true" v-show="code">view code</a>
           <checkly-badge v-if="!isRecording"></checkly-badge>
         </div>
-        <ResultsTab :puppeteer="code" :playwright="codeForPlaywright" :options="options" v-if="showResultsTab" v-on:update:tab="currentResultTab = $event" />
+        <ResultsTab :puppeteer="code" :playwright="codeForPlaywright" :steps="codeSteps"  :options="options" v-if="showResultsTab" v-on:update:tab="currentResultTab = $event" />
         <div class="results-footer" v-show="showResultsTab">
           <button class="btn btn-sm btn-primary" @click="restart" v-show="code">Restart</button>
           <a href="#" v-clipboard:copy="getCodeForCopy()" @click.prevent="setCopying" v-show="code">{{copyLinkText}}</a>
@@ -59,6 +59,7 @@ export default {
       return {
         code: '',
         codeForPlaywright: '',
+        codeSteps: '',
         options: {},
         showResultsTab: false,
         showHelp: false,
@@ -131,6 +132,7 @@ export default {
           const codeGenPlaywright = new PlaywrightCodeGenerator(codeOptions)
           this.code = codeGen.generate(this.recording)
           this.codeForPlaywright = codeGenPlaywright.generate(this.recording)
+          this.codeSteps = codeGenPlaywright.actionSteps(this.recording)
           this.showResultsTab = true
           this.storeState()
         })
@@ -144,6 +146,7 @@ export default {
         this.recording = this.liveEvents = []
         this.code = ''
         this.codeForPlaywright = ''
+        this.codeSteps = '';
         this.showResultsTab = this.isRecording = this.isPaused = false
         this.storeState()
       },
@@ -154,7 +157,7 @@ export default {
         }
       },
       loadState (cb) {
-        this.$chrome.storage.local.get(['controls', 'code', 'options', 'codeForPlaywright'], ({ controls, code, options, codeForPlaywright }) => {
+        this.$chrome.storage.local.get(['controls', 'code', 'options', 'codeForPlaywright', 'codeSteps'], ({ controls, code, options, codeForPlaywright, codeSteps }) => {
           if (controls) {
             this.isRecording = controls.isRecording
             this.isPaused = controls.isPaused
@@ -168,6 +171,10 @@ export default {
             this.codeForPlaywright = codeForPlaywright
           }
 
+          if (codeSteps) {
+            this.codeSteps = codeSteps;
+          }
+
           if (options) {
             this.options = options
           }
@@ -178,6 +185,7 @@ export default {
         this.$chrome.storage.local.set({
           code: this.code,
           codeForPlaywright: this.codeForPlaywright,
+          codeSteps: this.codeSteps,
           controls: {
             isRecording: this.isRecording,
             isPaused: this.isPaused
